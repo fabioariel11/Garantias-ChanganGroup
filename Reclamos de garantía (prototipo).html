@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reclamos de garantía</title>
+<style>
+/* 1) COLORES: se definen una vez como variables y se usan en toda la página.
+   Hay un juego para modo claro y otro para modo oscuro. */
+:root{--bg:#f3f5f7;--card:#fff;--ink:#14202b;--mute:#5b6b7a;--line:#d5dce3;--acc:#1f5fa8;--accfg:#fff;--ok:#2e7d4f;--bad:#b3261e;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f161d;--card:#18222c;--ink:#e8eef3;--mute:#9aabb9;--line:#2c3945;--acc:#6ea8e8;--accfg:#08131f;--ok:#5fc08a;--bad:#ff8a80;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f161d;--card:#18222c;--ink:#e8eef3;--mute:#9aabb9;--line:#2c3945;--acc:#6ea8e8;--accfg:#08131f;--ok:#5fc08a;--bad:#ff8a80;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:880px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:8px 0 4px}h2{font-size:1.05rem;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 14px}
+/* 2) PESTAÑAS */
+nav{display:flex;gap:8px;margin:12px 0}
+nav button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font:inherit;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:600}
+/* 3) TARJETAS Y CAMPOS */
+section.box,fieldset.piece{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.w2{grid-column:span 2}@media(max-width:520px){.w2{grid-column:auto}}
+label{display:flex;flex-direction:column;font-size:.9rem;color:var(--mute);gap:3px}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px;max-width:100%;box-sizing:border-box}
+textarea{min-height:64px;resize:vertical}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button.main{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+button.ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer;margin-top:8px}
+/* 4) EVIDENCIAS: cada una cambia a verde cuando tiene archivo */
+legend{font-weight:600;padding:0 6px}.prog{color:var(--mute);font-weight:400;font-size:.85rem;margin-left:8px}
+.ev{border:1px dashed var(--line);border-radius:8px;padding:8px;margin-top:8px;display:grid;gap:4px}
+.ev.ok{border:1px solid var(--ok)}.tag{color:var(--mute);font-size:.8rem;margin-left:8px}
+.fn{color:var(--mute);word-break:break-all}.ev.ok .fn{color:var(--ok)}
+.err{border:1px solid var(--bad);color:var(--bad);border-radius:8px;padding:10px;margin-bottom:14px}.err ul{margin:4px 0 0;padding-left:20px}
+.note{background:var(--card);border-left:4px solid var(--acc);padding:8px 12px;margin-bottom:14px;color:var(--mute);font-size:.9rem}
+.ok-msg{border:1px solid var(--ok);color:var(--ok);border-radius:8px;padding:10px;margin-bottom:14px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>Reclamos de garantía</h1>
+<p class="sub">Los talleres cargan la ficha y sus evidencias. El departamento de garantías revisa y reporta a fábrica.</p>
+<nav role="tablist">
+  <button role="tab" id="t1" aria-selected="true">Nuevo reclamo</button>
+  <button role="tab" id="t2" aria-selected="false">Panel de revisión</button>
+</nav>
+
+<!-- ============ PESTAÑA 1: FORMULARIO ============ -->
+<div id="v1">
+<div class="note">Prototipo: los archivos se quedan solo en esta ventana y se pierden al cerrarla. Al conectar un almacenamiento real se guardarán de forma permanente.</div>
+<div id="errs" class="err" role="alert" hidden></div>
+<form id="f" novalidate>
+ <section class="box"><h2>Datos del cliente y del vehículo</h2>
+ <div class="grid-template-columns: 1fr">
+  <label class="w2">Nombre del taller<input id="taller"></label>
+  <label class="w2">Ciudad<input id="ciudad"></label>
+  <label class="w2">Nombre del cliente (completo)<input id="cliente"></label>
+  <label>N° de C.I. / R.U.C.<input id="doc"></label>
+  <label>Teléfono del cliente<input id="tel" type="tel"></label>
+  <label>Orden de trabajo N°<input id="ot"></label>
+  
+  <!--============Selector de marca=====================-->
+  <label>Marca del vehículo<select id="marca"><option value="" disabled selected>Selecciona una marca</option>
+  <option value="Changan">Changan</option>
+  <option value="Deepal">Deepal</option></select></label>
+
+  <!--============SELECTOR DE MODELO=====================-->
+  <label>Modelo del vehículo<select id="modelo"><option value="" disabled selected>Selecciona primero una marca</option>
+  </select></label>
+
+  <!--============MODELOS Deepal=====================-->
+<label>Modelo del vehículo<select id="modelo"><option value="" disabled selected></option>
+  <option value="S05">S05</option>
+  <option value="S07">S07</option>
+  <option value="G318">G318</option></select></label>
+  <label>Año<input id="anio" type="number" min="1990" max="2100"></label>
+  <label>N° de chasis completo (17 caracteres)<input id="chasis" maxlength="17" autocapitalize="characters"></label>
+  <label>Kilometraje<input id="km" type="number" min="0"></label>
+  <label>Fecha de venta<input id="fventa" type="date"></label>
+  <label>Fecha de la reparación<input id="frep" type="date"></label>
+ </div></section>
+
+ <section class="box"><h2>Falla y reparación</h2>
+ <div class="grid">
+  <label class="w2">Explicación breve de la falla<textarea id="falla"></textarea></label>
+  <label class="w2">Diagnóstico luego de la inspección<textarea id="diag"></textarea></label>
+  <label class="w2">Medida de reparación tomada<textarea id="medida"></textarea></label>
+ </div></section>
+
+ <h2>Piezas cambiadas y sus evidencias</h2>
+ <div id="pieces"></div>
+ <button type="button" class="ghost" id="add">Agregar otra pieza</button>
+ <p></p>
+ <button class="main" type="submit">Enviar reclamo</button>
+</form>
+</div>
+
+<!-- ============ PESTAÑA 2: PANEL ============ -->
+<div id="v2" hidden>
+ <div id="okmsg" class="ok-msg" hidden></div>
+ <section class="box"><h2>Reclamos recibidos</h2>
+ <p id="empty" class="sub">Todavía no hay reclamos. Carga el primero en la pestaña Nuevo reclamo.</p>
+ <div class="scroll"><table id="tbl" hidden><thead><tr><th>Reclamo</th><th>Taller</th><th>Cliente</th><th>Chasis</th><th>Piezas</th><th>Archivos</th><th>Estado</th></tr></thead><tbody></tbody></table></div>
+ </section>
+</div>
+</main>
+
+<script>
+/* 5) LISTA DE EVIDENCIAS: sale de tu ficha en Excel.
+   req = 1 significa obligatoria; k = tipo de archivo que acepta. */
+const EV=[
+ {id:'placa',t:'Placa de identificación (donde se ve el N° de chasis)',k:'image',req:1},
+ {id:'km',t:'Kilometraje en el tablero',k:'image',req:1},
+ {id:'defecto',t:'Punto de defecto de la pieza',k:'image',req:1},
+ {id:'vieja',t:'Pieza sustituida, desmontada',k:'image',req:1},
+ {id:'lote',t:'Código de proveedor y N° de lote de la pieza',k:'image',req:1},
+ {id:'comp',t:'Pieza vieja junto a la pieza nueva',k:'image',req:1},
+ {id:'scan',t:'Código de falla del escáner (solo si aplica)',k:'image',req:0},
+ {id:'video',t:'Video del problema o falla',k:'video',req:1}
+];
+const NREQ=EV.filter(e=>e.req).length;
+const $=id=>document.getElementById(id);
+const P=[];      // piezas del reclamo en curso
+const CLAIMS=[]; // reclamos enviados (solo en memoria)
+
+/* 6) PESTAÑAS: muestran un bloque y ocultan el otro */
+function tab(n){$('v1').hidden=n!==1;$('v2').hidden=n!==2;
+ $('t1').setAttribute('aria-selected',n===1);$('t2').setAttribute('aria-selected',n===2)}
+$('t1').onclick=()=>tab(1);$('t2').onclick=()=>tab(2);
+
+/* 7) PIEZAS: cada pieza es una tarjeta con sus propios campos y su propio juego de evidencias */
+function addPiece(){
+ const el=document.createElement('fieldset');el.className='piece';
+ el.innerHTML='<legend></legend><div class="grid"><label>Código<input name="codigo"></label>'
+ +'<label class="w2">Descripción<input name="desc"></label>'
+ +'<label>Cantidad<input name="cant" type="number" min="1" value="1"></label></div>'
+ +EV.map(e=>'<div class="ev" data-id="'+e.id+'"><div><b>'+e.t+'</b><span class="tag">'+(e.req?'Obligatoria':'Opcional')+'</span></div>'
+ +'<input type="file" accept="'+e.k+'/*"><small class="fn">Sin archivo</small></div>').join('')
+ +'<button type="button" class="ghost rm">Quitar esta pieza</button>';
+ const p={el,files:{}};P.push(p);
+ el.querySelectorAll('.ev').forEach(ev=>{
+  const inp=ev.querySelector('input'),fn=ev.querySelector('.fn');
+  inp.onchange=()=>{const f=inp.files[0];            // archivo elegido (o ninguno)
+   if(f)p.files[ev.dataset.id]=f;else delete p.files[ev.dataset.id];
+   ev.classList.toggle('ok',!!f);
+   fn.textContent=f?f.name+' ('+(f.size/1048576).toFixed(1)+' MB)':'Sin archivo';
+   label()};
+ });
+ el.querySelector('.rm').onclick=()=>{if(P.length>1){P.splice(P.indexOf(p),1);el.remove();label()}};
+ $('pieces').appendChild(el);label();
+}
+/* Título de cada pieza con su avance: "Pieza 1  5 de 7 evidencias obligatorias" */
+function label(){P.forEach((p,i)=>{
+ const n=EV.filter(e=>e.req&&p.files[e.id]).length;
+ p.el.querySelector('legend').innerHTML='Pieza '+(i+1)+'<span class="prog">'+n+' de '+NREQ+' evidencias obligatorias</span>'})}
+$('add').onclick=addPiece;
+
+/* 8) VALIDACIÓN: junta todos los problemas en una lista antes de enviar */
+function validate(){
+ const e=[],v=id=>$(id).value.trim();
+ [['taller','el taller'],['cliente','el nombre del cliente'],['doc','la C.I. o R.U.C.'],['tel','el teléfono'],['ot','la orden de trabajo'],
+  ['modelo','el modelo'],['anio','el año'],['km','el kilometraje'],['fventa','la fecha de venta'],['frep','la fecha de reparación'],
+  ['falla','la explicación de la falla'],['diag','el diagnóstico'],['medida','la medida de reparación']]
+  .forEach(([id,t])=>{if(!v(id))e.push('Falta completar '+t+'.')});
+ if(v('chasis')&&!/^[A-HJ-NPR-Z0-9]{17}$/i.test(v('chasis')))e.push('El N° de chasis debe tener 17 caracteres (letras y números, sin I, O ni Q).');
+ if(!v('chasis'))e.push('Falta completar el N° de chasis.');
+ if(v('fventa')&&v('frep')&&v('frep')<v('fventa'))e.push('La fecha de reparación no puede ser anterior a la fecha de venta.');
+ P.forEach((p,i)=>{
+  const q=s=>p.el.querySelector('[name='+s+']').value.trim();
+  if(!q('codigo')||!q('desc')||+q('cant')<1)e.push('Pieza '+(i+1)+': completa código, descripción y cantidad.');
+  const falta=EV.filter(x=>x.req&&!p.files[x.id]).map(x=>x.t);
+  if(falta.length)e.push('Pieza '+(i+1)+': faltan '+falta.length+' evidencias ('+falta.join('; ')+').');
+ });
+ return e;
+}
+
+/* 9) ENVÍO: si no hay errores, guarda el reclamo y limpia el formulario */
+$('f').onsubmit=ev=>{ev.preventDefault();
+ const e=validate(),box=$('errs');
+ if(e.length){box.innerHTML='<b>Revisa estos puntos antes de enviar:</b><ul>'+e.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  box.hidden=false;box.scrollIntoView({behavior:'smooth'});return}
+ box.hidden=true;
+ const id='GAR-'+String(CLAIMS.length+1).padStart(4,'0');
+ CLAIMS.push({id,taller:$('taller').value.trim(),cliente:$('cliente').value.trim(),chasis:$('chasis').value.toUpperCase(),
+  piezas:P.length,archivos:P.reduce((s,p)=>s+Object.keys(p.files).length,0),estado:'Pendiente'});
+ $('f').reset();P.length=0;$('pieces').innerHTML='';addPiece();
+ $('okmsg').textContent='Reclamo '+id+' enviado correctamente.';$('okmsg').hidden=false;
+ draw();tab(2);
+};
+
+/* 10) PANEL: dibuja una fila por reclamo, con el estado editable */
+function draw(){
+ $('empty').hidden=CLAIMS.length>0;$('tbl').hidden=!CLAIMS.length;
+ const tb=$('tbl').querySelector('tbody');tb.innerHTML='';
+ CLAIMS.forEach(c=>{const tr=document.createElement('tr');
+  [c.id,c.taller,c.cliente,c.chasis,c.piezas,c.archivos].forEach(x=>{const td=document.createElement('td');td.textContent=x;tr.appendChild(td)});
+  const td=document.createElement('td'),s=document.createElement('select');
+  ['Pendiente','En revisión','Observado','Enviado a fábrica'].forEach(o=>{const op=new Option(o,o);s.add(op)});
+  s.value=c.estado;s.onchange=()=>{c.estado=s.value};td.appendChild(s);tr.appendChild(td);tb.appendChild(tr)});
+}
+addPiece(); // arranca con una pieza
+
+
+// 1. Definimos los modelos que corresponden a cada marca
+
+  const modelosPorMarca = {
+    Changan: ["Alsvin", "CS15", "CS35 Plus", "CS55 Plus", "CS75 Plus", "UNI-T", "UNI-K", 
+    "Hunter F70", "Hunter REEV"],
+    Deepal: ["S05", "S07", "G318"] // Puedes agregar más modelos aquí si lo necesitas
+    };
+// 2. Capturamos los elementos del formulario por su ID
+  const selectMarca = document.getElementById('marca');
+  const selectModelo = document.getElementById('modelo');
+// 3. Escuchamos cuando el usuario cambia la marca
+  selectMarca.addEventListener('change', function() {
+    const marcaSeleccionada = this.value;
+// Vaciamos el selector de modelos y ponemos una opción por defecto
+    selectModelo.innerHTML = '<option value="" disabled selected>Selecciona un modelo</option>';
+// Verificamos si la marca tiene modelos definidos
+    if (modelosPorMarca[marcaSeleccionada]) {
+      // Recorremos cada modelo de la marca y lo agregamos a la lista
+      modelosPorMarca[marcaSeleccionada].forEach(function(modelo) {
+        const option = document.createElement('option');
+        option.value = modelo;
+        option.textContent = modelo;
+        selectModelo.appendChild(option);
+      });
+    }
+  });
+</script>
+</body>
+</html>
