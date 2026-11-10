@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PORTAL DE REPORTES DE GARANTÍA GRUPO CHANGAN</title>
+<style>
+body {
+  position: relative;
+  background-color: #f4f6f9 !important;
+  min-height: 100vh;
+  margin: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('images/fondo_web.png') !important;
+  background-repeat: repeat !important;
+  background-size: 500px !important;
+  opacity: 0.12 !important;
+  z-index: -1;
+}
+
+:root{--bg:#f3f5f7;--card:#fff;--ink:#14202b;--mute:#5b6b7a;--line:#d5dce3;--acc:#1f5fa8;--accfg:#fff;--ok:#2e7d4f;--bad:#b3261e;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:920px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:8px 0 4px}h2{font-size:1.05rem;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 0 14px}
+
+/* LOGIN SCREEN */
+#loginContainer {
+  max-width: 400px;
+  margin: 80px auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+#loginContainer h2 { text-align: center; margin-bottom: 20px; }
+
+/* PESTAÑAS */
+nav{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}
+nav button{flex:1;min-width:140px;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;font:inherit;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:600}
+
+/* TARJETAS Y CAMPOS */
+section.box,fieldset.piece{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.w2{grid-column:span 2}@media(max-width:520px){.w2{grid-column:auto}}
+label{display:flex;flex-direction:column;font-size:.9rem;color:var(--mute);gap:3px}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px;max-width:100%;box-sizing:border-box}
+textarea{min-height:64px;resize:vertical}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+button.main{background:var(--acc);color:var(--accfg);border:0;border-radius:8px;padding:12px 18px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+button.ghost{background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit;cursor:pointer}
+
+/* EVIDENCIAS */
+legend{font-weight:600;padding:0 6px}.prog{color:var(--mute);font-weight:400;font-size:.85rem;margin-left:8px}
+.ev{border:1px dashed var(--line);border-radius:8px;padding:8px;margin-top:8px;display:grid;gap:6px}
+.ev.ok{border:1px solid var(--ok)}.tag{color:var(--mute);font-size:.8rem;margin-left:8px}
+.fn{color:var(--mute);word-break:break-all}.ev.ok .fn{color:var(--ok)}
+.ev-actions{display:flex;gap:8px;align-items:center;margin-top:4px}
+.ev-actions button{padding:4px 8px;font-size:0.8rem;border-radius:4px;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.ev-actions button.btn-del{border-color:var(--bad);color:var(--bad)}
+
+/* MODALES */
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:flex;justify-content:center;align-items:center;z-index:2000}
+.modal img, .modal video{max-width:90%;max-height:90%;border-radius:8px}
+
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:1000;padding:15px;box-sizing:border-box}
+.modal-content{background:var(--card);color:var(--ink);padding:20px;border-radius:10px;width:100%;max-width:750px;max-height:90vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.modal-body-info{background:var(--bg);padding:12px;border-radius:6px;margin-bottom:15px;font-size:0.9rem;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal-body-info div{word-break:break-word}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
+
+.btn-revisar{background-color:var(--acc);color:var(--accfg);border:none;padding:6px 12px;border-radius:4px;cursor:pointer}
+.btn-aprobar{background-color:var(--ok);color:white;border:none;padding:8px 14px;border-radius:4px;cursor:pointer}
+.btn-rechazar{background-color:var(--bad);color:white;border:none;padding:8px 14px;border-radius:4px;cursor:pointer}
+.btn-cerrar{background-color:var(--mute);color:white;border:none;padding:8px 14px;border-radius:4px;cursor:pointer}
+
+.err{border:1px solid var(--bad);color:var(--bad);border-radius:8px;padding:10px;margin-bottom:14px}.err ul{margin:4px 0 0;padding-left:20px}
+.note{background:var(--card);border-left:4px solid var(--acc);padding:8px 12px;margin-bottom:14px;color:var(--mute);font-size:.9rem}
+.ok-msg{border:1px solid var(--ok);color:var(--ok);border-radius:8px;padding:10px;margin-bottom:14px}
+.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA DE LOGIN -->
+<div id="loginContainer">
+  <h2>Portal de Garantías Grupo Changan</h2>
+  <h4>Acceso al portal</h4>
+  <form id="loginForm" onsubmit="handleLogin(event)">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <label>Usuario<input type="text" id="userInput" required placeholder="Nombre de usuario"></label>
+      <label>Contraseña<input type="password" id="passInput" required placeholder="••••••••"></label>
+      <button type="submit" class="main" style="margin-top:10px;">Ingresar</button>
+      <div id="loginError" class="err" style="display:none;margin-top:10px;font-size:0.85rem;">Usuario o contraseña incorrectos.</div>
+    </div>
+  </form>
+</div>
+
+<!-- APLICACIÓN PRINCIPAL -->
+<main id="appContainer" hidden>
+
+<div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 10px;">
+  <div>
+    <h1>PORTAL DE REPORTES DE GARANTÍA GRUPO CHANGAN</h1>
+    <p class="sub" id="userWelcomeRole" style="margin:0;">Conectado como: </p>
+  </div>
+  <button type="button" class="ghost" onclick="cerrarSesion()">Cerrar Sesión</button>
+</div>
+
+<nav role="tablist">
+  <button role="tab" id="t1" aria-selected="true">Nuevo reclamo</button>
+  <button role="tab" id="t2" aria-selected="false">Mis Reclamos</button>
+  <button role="tab" id="t3" aria-selected="false" hidden>Panel de revisión (Admin)</button>
+  <button role="tab" id="t4" aria-selected="false" hidden>Gestión de Usuarios (Admin)</button>
+</nav>
+
+<!-- PESTAÑA 1: FORMULARIO DE RECLAMO -->
+<div id="v1">
+<div class="note" id="avisoFormulario">Cargando nuevo reclamo o reporte de garantía.</div>
+<div id="errs" class="err" role="alert" hidden></div>
+<form id="f" novalidate>
+ <section class="box"><h2>Datos del cliente y del vehículo</h2>
+ <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+  <label>Nombre del taller<input id="taller" readonly style="background:var(--line); cursor:not-allowed;"></label>
+  <label>Ciudad<input id="ciudad"></label>
+  <label>Nombre del cliente (completo)<input id="cliente"></label>
+  <label>N° de C.I. / R.U.C.<input id="doc"></label>
+  <label>Teléfono del cliente<input id="tel" type="tel"></label>
+  <label>Orden de trabajo N°<input id="ot"></label>
+  
+  <label>Marca del vehículo<select id="marca"><option value="" disabled selected>Selecciona una marca</option>
+  <option value="Changan">Changan</option>
+  <option value="Deepal">Deepal</option>
+  <option value="AVATR">AVATR</option></select></label>
+
+  <label>Modelo del vehículo<select id="modelo"><option value="" disabled selected>Selecciona primero una marca</option>
+  </select></label>
+
+  <label>Año<input id="anio" type="number" min="1990" max="2100"></label>
+  <label>N° de chasis completo (17 caracteres)<input id="chasis" maxlength="17" autocapitalize="characters"></label>
+  <label>Kilometraje<input id="km" type="number" min="0"></label>
+  <label>Fecha de venta<input id="fventa" type="date"></label>
+  <label>Fecha de la reparación<input id="frep" type="date"></label>
+ </div></section>
+
+ <section class="box"><h2>Falla y reparación</h2>
+ <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+  <label class="w2">Explicación breve de la falla<textarea id="falla"></textarea></label>
+  <label class="w2">Diagnóstico luego de la inspección<textarea id="diag"></textarea></label>
+  <label class="w2">Medida de reparación tomada<textarea id="medida"></textarea></label>
+ </div></section>
+
+ <h2>Piezas cambiadas y sus evidencias</h2>
+ <div id="pieces"></div>
+ <button type="button" class="ghost" id="add">Agregar otra pieza</button>
+ <p></p>
+ <button class="main" type="submit" id="btnSubmitForm">Enviar reclamo</button>
+</form>
+</div>
+
+<!-- PESTAÑA 2: MIS RECLAMOS (TALLER) -->
+<div id="v2" hidden>
+ <div id="okmsg" class="ok-msg" hidden></div>
+ <section class="box"><h2>Historial de Reclamos Cargados</h2>
+ <p id="emptyTaller" class="sub">No se registran reclamos enviados por este usuario.</p>
+ <div class="scroll">
+  <table id="tblTaller" hidden>
+   <thead>
+    <tr>
+     <th>Reclamo</th>
+     <th>Chasis</th>
+     <th>Estado</th>
+     <th>Observaciones Admin</th>
+     <th>Acción</th>
+    </tr>
+   </thead>
+   <tbody></tbody>
+  </table>
+ </div>
+ </section>
+</div>
+
+<!-- PESTAÑA 3: PANEL ADMIN DE REVISIÓN -->
+<div id="v3" hidden>
+ <section class="box"><h2>Reclamos Recibidos de Todos los Talleres</h2>
+ <p id="emptyAdmin" class="sub">No hay reclamos registrados en la plataforma.</p>
+ <div class="scroll">
+  <table id="tblAdmin" hidden>
+   <thead>
+    <tr>
+     <th>Reclamo</th>
+     <th>Taller</th>
+     <th>Cliente</th>
+     <th>Chasis</th>
+     <th>Piezas</th>
+     <th>Estado</th>
+     <th>Acciones</th>
+    </tr>
+   </thead>
+   <tbody></tbody>
+  </table>
+ </div>
+ </section>
+</div>
+
+<!-- PESTAÑA 4: GESTIÓN DE USUARIOS Y ROLES (ADMIN) -->
+<div id="v4" hidden>
+ <section class="box">
+   <h2>Crear Nuevo Usuario / Taller</h2>
+   <form id="formUser" onsubmit="crearUsuario(event)">
+     <div class="grid">
+       <label>Nombre Completo / Taller<input type="text" id="nuNombre" required placeholder="Ej: Changan Santa Teresa"></label>
+       <label>Usuario (Login)<input type="text" id="nuUser" required placeholder="Ej: santateresa"></label>
+       <label>Contraseña<input type="text" id="nuPass" required placeholder="••••••••"></label>
+       <label>Rol asignado
+         <select id="nuRol" required>
+           <option value="taller">Taller (Solo carga y mis reclamos)</option>
+           <option value="admin">Administrador (Acceso total)</option>
+         </select>
+       </label>
+     </div>
+     <button type="submit" class="main" style="margin-top: 14px;">Registrar Usuario</button>
+   </form>
+ </section>
+
+ <section class="box">
+   <h2>Usuarios Registrados</h2>
+   <div class="scroll">
+     <table>
+       <thead>
+         <tr>
+           <th>Nombre / Taller</th>
+           <th>Usuario</th>
+           <th>Rol</th>
+           <th>Acción</th>
+         </tr>
+       </thead>
+       <tbody id="tbUsuarios"></tbody>
+     </table>
+   </div>
+ </section>
+</div>
+</main>
+
+<!-- MODAL REVISIÓN ADMIN -->
+<div id="modalRevision" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h3>Revisión de Reclamo: <span id="modalReclamoId"></span></h3>
+        <div class="modal-body-info" id="modalInfoDetalle"></div>
+        <div style="margin-bottom: 15px;">
+            <h4 style="margin:0 0 8px 0;">Evidencias cargadas:</h4>
+            <div id="modalEvidenciasLista" style="display: flex; flex-direction: column; gap: 8px; max-height: 200px; overflow-y: auto; background: var(--bg); padding: 10px; border-radius: 6px;"></div>
+        </div>
+        <div class="form-group">
+            <label for="comentarioAdmin"><strong>Comentarios / Observaciones para el taller:</strong></label>
+            <textarea id="comentarioAdmin" rows="3" placeholder="Ej: Fotografía borrosa o falta número de lote."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-rechazar" onclick="guardarComentario('Corregir')">⚠️ Solicitar Corrección</button>
+            <button type="button" class="btn-aprobar" onclick="guardarComentario('Aprobado')">✅ Aprobar para Fábrica</button>
+            <button type="button" class="btn-cerrar" onclick="cerrarRevision()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const EV=[
+ {id:'placa',t:'Placa de identificación (N° de chasis)',k:'image',req:1},
+ {id:'km',t:'Kilometraje en el tablero',k:'image',req:1},
+ {id:'defecto',t:'Punto de defecto de la pieza',k:'image',req:1},
+ {id:'vieja',t:'Pieza sustituida, desmontada',k:'image',req:1},
+ {id:'lote',t:'Código de proveedor y N° de lote',k:'image',req:1},
+ {id:'comp',t:'Pieza vieja junto a la pieza nueva',k:'image',req:1},
+ {id:'scan',t:'Código de falla del escáner',k:'image',req:0},
+ {id:'video',t:'Video del problema o falla',k:'video',req:1}
+];
+const NREQ=EV.filter(e=>e.req).length;
+const $=id=>document.getElementById(id);
+const P=[];      
+
+// USUARIOS DEFAULT (Base Inicial)
+const INITIAL_USERS = [
+  { id: 1, nombre: 'Administrador Central', user: 'admin', pass: 'admin123', rol: 'admin' },
+  { id: 2, nombre: 'Changan Santa Teresa', user: 'taller', pass: 'taller123', rol: 'taller' }
+];
+
+// Cargar de localStorage o inicializar
+let USERS = JSON.parse(localStorage.getItem('portal_users')) || INITIAL_USERS;
+let CLAIMS = JSON.parse(localStorage.getItem('portal_claims')) || [];
+
+let usuarioActual = null;
+let editandoId = null;
+let reclamoActualId = null;
+
+function syncStorage(){
+  localStorage.setItem('portal_users', JSON.stringify(USERS));
+  localStorage.setItem('portal_claims', JSON.stringify(CLAIMS));
+}
+
+/* AUTENTICACIÓN */
+function handleLogin(e){
+  e.preventDefault();
+  const u = $('userInput').value.trim();
+  const p = $('passInput').value.trim();
+
+  const found = USERS.find(x => x.user.toLowerCase() === u.toLowerCase() && x.pass === p);
+
+  if(found){
+    usuarioActual = found;
+    $('loginError').style.display = 'none';
+    iniciarSesionExitoso();
+  } else {
+    $('loginError').style.display = 'block';
+  }
+}
+
+function iniciarSesionExitoso(){
+  $('loginContainer').hidden = true;
+  $('appContainer').hidden = false;
+  $('userWelcomeRole').textContent = 'Conectado como: ' + usuarioActual.nombre + ' (' + usuarioActual.rol.toUpperCase() + ')';
+  $('taller').value = usuarioActual.nombre;
+
+  if(usuarioActual.rol === 'admin'){
+    $('t3').hidden = false;
+    $('t4').hidden = false;
+    tab(3); 
+  } else {
+    $('t3').hidden = true;
+    $('t4').hidden = true;
+    tab(1);
+  }
+}
+
+function cerrarSesion(){
+  usuarioActual = null;
+  $('userInput').value = '';
+  $('passInput').value = '';
+  $('appContainer').hidden = true;
+  $('loginContainer').hidden = false;
+}
+
+/* PESTAÑAS */
+function tab(n){
+ if((n===3 || n===4) && usuarioActual.rol !== 'admin') return;
+ $('v1').hidden=n!==1;
+ $('v2').hidden=n!==2;
+ $('v3').hidden=n!==3;
+ $('v4').hidden=n!==4;
+ $('t1').setAttribute('aria-selected',n===1);
+ $('t2').setAttribute('aria-selected',n===2);
+ $('t3').setAttribute('aria-selected',n===3);
+ $('t4').setAttribute('aria-selected',n===4);
+ if(n===2) drawTaller();
+ if(n===3) drawAdmin();
+ if(n===4) drawUsuarios();
+}
+$('t1').onclick=()=>tab(1);
+$('t2').onclick=()=>tab(2);
+$('t3').onclick=()=>tab(3);
+$('t4').onclick=()=>tab(4);
+
+/* GESTIÓN DE PIEZAS Y EVIDENCIAS */
+function addPiece(piezaData = null){
+ const el=document.createElement('fieldset');el.className='piece';
+ el.innerHTML='<legend></legend><div class="grid"><label>Código<input name="codigo" value="'+(piezaData?piezaData.codigo:'')+'"></label>'
+ +'<label class="w2">Descripción<input name="desc" value="'+(piezaData?piezaData.desc:'')+'"></label>'
+ +'<label>Cantidad<input name="cant" type="number" min="1" value="'+(piezaData?piezaData.cant:'1')+'"></label></div>'
+ +EV.map(e=>'<div class="ev" data-id="'+e.id+'"><div><b>'+e.t+'</b><span class="tag">'+(e.req?'Obligatoria':'Opcional')+'</span></div>'
+ +'<input type="file" accept="'+e.k+'/*">'
+ +'<small class="fn">'+(piezaData && piezaData.files && piezaData.files[e.id] ? 'Archivo cargado ('+(piezaData.files[e.id].name||'Adjunto')+')' : 'Sin archivo')+'</small>'
+ +'<div class="ev-actions" '+(piezaData && piezaData.files && piezaData.files[e.id] ? '' : 'hidden')+'>'+(piezaData && piezaData.files && piezaData.files[e.id] ? '<button type="button" class="btn-view">Ver archivo</button>' : '')+'<button type="button" class="btn-del">Eliminar</button></div>'
+ +'</div>').join('')
+ +'<button type="button" class="ghost rm">Quitar esta pieza</button>';
+ 
+ const p={el,files:piezaData && piezaData.files ? {...piezaData.files} : {}};
+ P.push(p);
+
+ el.querySelectorAll('.ev').forEach(ev=>{
+  const inp=ev.querySelector('input');
+  const fn=ev.querySelector('.fn');
+  const actions=ev.querySelector('.ev-actions');
+  const btnView=ev.querySelector('.btn-view');
+  const btnDel=ev.querySelector('.btn-del');
+
+  if(piezaData && piezaData.files && piezaData.files[ev.dataset.id]){
+    ev.classList.add('ok');
+    if(actions) actions.hidden = false;
+  }
+
+  inp.onchange=()=>{
+   const f=inp.files[0];
+   if(f){
+    p.files[ev.dataset.id]={ name: f.name, size: f.size, type: f.type, raw: f };
+    ev.classList.add('ok');
+    fn.textContent=f.name+' ('+(f.size/1048576).toFixed(1)+' MB)';
+    
+    let actDiv = ev.querySelector('.ev-actions');
+    if(!actDiv){
+      actDiv = document.createElement('div');
+      actDiv.className = 'ev-actions';
+      ev.appendChild(actDiv);
+    }
+    actDiv.innerHTML = '<button type="button" class="btn-view">Ver archivo</button><button type="button" class="btn-del">Eliminar</button>';
+    actDiv.hidden = false;
+
+    actDiv.querySelector('.btn-view').onclick = () => mostrarArchivoModal(p.files[ev.dataset.id]);
+    actDiv.querySelector('.btn-del').onclick = () => {
+       delete p.files[ev.dataset.id];
+       inp.value='';
+       ev.classList.remove('ok');
+       fn.textContent='Sin archivo';
+       actDiv.hidden=true;
+       label();
+    };
+   }
+   label();
+  };
+
+  if(btnView){
+    btnView.onclick=()=>mostrarArchivoModal(p.files[ev.dataset.id]);
+  }
+
+  if(btnDel){
+    btnDel.onclick=()=>{
+     delete p.files[ev.dataset.id];
+     inp.value='';
+     ev.classList.remove('ok');
+     fn.textContent='Sin archivo';
+     actions.hidden=true;
+     label();
+    };
+  }
+ });
+
+ el.querySelector('.rm').onclick=()=>{
+  if(P.length>1){
+    const index = P.indexOf(p);
+    if(index > -1) P.splice(index, 1);
+    el.remove();
+    label();
+  } else {
+    alert('Debes mantener al menos una pieza en el reclamo.');
+  }
+ };
+
+ $('pieces').appendChild(el);
+ label();
+}
+
+function mostrarArchivoModal(fileObj){
+   if(!fileObj) return;
+   const modal=document.createElement('div');
+   modal.className='modal';
+   
+   if(fileObj.raw){
+     const url=URL.createObjectURL(fileObj.raw);
+     if(fileObj.type.startsWith('image/')) modal.innerHTML='<img src="'+url+'">';
+     else if(fileObj.type.startsWith('video/')) modal.innerHTML='<video src="'+url+'" controls autoplay></video>';
+   } else {
+     modal.innerHTML='<div style="color:white; background:black; padding:20px; border-radius:8px;">[Vista previa de archivo guardado: '+fileObj.name+']</div>';
+   }
+
+   modal.onclick=(e)=>{if(e.target === modal) modal.remove();};
+   document.body.appendChild(modal);
+}
+
+function label(){
+ P.forEach((p,i)=>{
+  const n=EV.filter(e=>e.req&&p.files[e.id]).length;
+  p.el.querySelector('legend').innerHTML='Pieza '+(i+1)+'<span class="prog">'+n+' de '+NREQ+' evidencias obligatorias</span>'
+ });
+}
+$('add').onclick=()=>addPiece();
+
+function validate(){
+ const e=[],v=id=>$(id).value.trim();
+ [['ciudad','la ciudad'],['cliente','el nombre del cliente'],['doc','la C.I. o R.U.C.'],['tel','el teléfono'],['ot','la orden de trabajo'],
+  ['modelo','el modelo'],['anio','el año'],['km','el kilometraje'],['fventa','la fecha de venta'],['frep','la fecha de reparación'],
+  ['falla','la explicación de la falla'],['diag','el diagnóstico'],['medida','la medida de reparación']]
+  .forEach(([id,t])=>{if(!v(id))e.push('Falta completar '+t+'.')});
+ if(v('chasis')&&!/^[A-HJ-NPR-Z0-9]{17}$/i.test(v('chasis')))e.push('El N° de chasis debe tener 17 caracteres.');
+ if(!v('chasis'))e.push('Falta completar el N° de chasis.');
+ P.forEach((p,i)=>{
+  const q=s=>p.el.querySelector('[name='+s+']').value.trim();
+  if(!q('codigo')||!q('desc')||+q('cant')<1)e.push('Pieza '+(i+1)+': completa código, descripción y cantidad.');
+  const falta=EV.filter(x=>x.req&&!p.files[x.id]).map(x=>x.t);
+  if(falta.length)e.push('Pieza '+(i+1)+': faltan '+falta.length+' evidencias obligatorias.');
+ });
+ return e;
+}
+
+$('f').onsubmit=ev=>{
+ ev.preventDefault();
+ const errors=validate(),box=$('errs');
+ if(errors.length){
+  box.innerHTML='<b>Revisa estos puntos:</b><ul>'+errors.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+  box.hidden=false;box.scrollIntoView({behavior:'smooth'});return;
+ }
+ box.hidden=true;
+
+ if(editandoId){
+  const reclamo = CLAIMS.find(x => x.id === editandoId);
+  if(reclamo){
+    reclamo.ciudad=$('ciudad').value.trim();
+    reclamo.cliente=$('cliente').value.trim();
+    reclamo.doc=$('doc').value.trim();
+    reclamo.tel=$('tel').value.trim();
+    reclamo.ot=$('ot').value.trim();
+    reclamo.marca=$('marca').value;
+    reclamo.modelo=$('modelo').value;
+    reclamo.anio=$('anio').value;
+    reclamo.chasis=$('chasis').value.toUpperCase();
+    reclamo.km=$('km').value;
+    reclamo.fventa=$('fventa').value;
+    reclamo.frep=$('frep').value;
+    reclamo.falla=$('falla').value;
+    reclamo.diag=$('diag').value;
+    reclamo.medida=$('medida').value;
+    reclamo.piezas=P.map(p=>({
+      codigo:p.el.querySelector('[name=codigo]').value,
+      desc:p.el.querySelector('[name=desc]').value,
+      cant:p.el.querySelector('[name=cant]').value,
+      files:{...p.files}
+    }));
+    reclamo.estado='Pendiente (Corregido)';
+    reclamo.comentarioAdmin='';
+  }
+  alert('Reclamo '+editandoId+' reenviado correctamente.');
+  editandoId=null;
+  $('btnSubmitForm').textContent='Enviar reclamo';
+ } else {
+  const id='GAR-'+String(CLAIMS.length+1).padStart(4,'0');
+  const nuevoReclamo={
+    id,
+    usuarioUser: usuarioActual.user,
+    taller: usuarioActual.nombre,
+    ciudad:$('ciudad').value.trim(),
+    cliente:$('cliente').value.trim(),
+    doc:$('doc').value.trim(),
+    tel:$('tel').value.trim(),
+    ot:$('ot').value.trim(),
+    marca:$('marca').value,
+    modelo:$('modelo').value,
+    anio:$('anio').value,
+    chasis:$('chasis').value.toUpperCase(),
+    km:$('km').value,
+    fventa:$('fventa').value,
+    frep:$('frep').value,
+    falla:$('falla').value,
+    diag:$('diag').value,
+    medida:$('medida').value,
+    piezas:P.map(p=>({
+      codigo:p.el.querySelector('[name=codigo]').value,
+      desc:p.el.querySelector('[name=desc]').value,
+      cant:p.el.querySelector('[name=cant]').value,
+      files:{...p.files}
+    })),
+    estado:'Pendiente',
+    comentarioAdmin:''
+  };
+  CLAIMS.push(nuevoReclamo);
+  $('okmsg').textContent='Reclamo '+id+' enviado correctamente.';$('okmsg').hidden=false;
+ }
+
+ syncStorage();
+ 
+ // LIMPIEZA COMPLETA DE CAMPOS AL ENVIAR
+ $('f').reset();
+ $('taller').value = usuarioActual.nombre;
+ $('modelo').innerHTML = '<option value="" disabled selected>Selecciona primero una marca</option>';
+ P.length=0;
+ $('pieces').innerHTML='';
+ addPiece();
+ tab(2);
+};
+
+/* MIS RECLAMOS */
+function drawTaller(){
+ const misReclamos = usuarioActual.rol === 'admin' 
+    ? CLAIMS 
+    : CLAIMS.filter(c => c.usuarioUser === usuarioActual.user || c.taller === usuarioActual.nombre);
+
+ $('emptyTaller').hidden = misReclamos.length > 0;
+ $('tblTaller').hidden = !misReclamos.length;
+ const tb=$('tblTaller').querySelector('tbody');tb.innerHTML='';
+
+ misReclamos.forEach(c=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${c.id}</td><td>${c.chasis}</td>
+    <td style="font-weight:bold; color:${c.estado.includes('Aprobado')?'var(--ok)':c.estado.includes('Corrección')?'var(--bad)':'var(--acc)'}">${c.estado}</td>
+    <td>${c.comentarioAdmin || 'Ninguna'}</td>`;
+
+  const tdAc=document.createElement('td');
+  if(c.estado.includes('Devuelto para Corrección')){
+    const btnEdit=document.createElement('button');
+    btnEdit.className='btn-revisar';
+    btnEdit.textContent='✏️ Corregir';
+    btnEdit.onclick=()=>cargarReclamoParaEdicion(c.id);
+    tdAc.appendChild(btnEdit);
+  } else {
+    tdAc.innerHTML='<span style="color:var(--mute);">🔒 Bloqueado</span>';
+  }
+  tr.appendChild(tdAc);
+  tb.appendChild(tr);
+ });
+}
+
+function cargarReclamoParaEdicion(id){
+ const c=CLAIMS.find(x=>x.id===id);
+ if(!c) return;
+ editandoId=c.id;
+
+ $('taller').value=c.taller;
+ $('ciudad').value=c.ciudad;
+ $('cliente').value=c.cliente;
+ $('doc').value=c.doc;
+ $('tel').value=c.tel;
+ $('ot').value=c.ot;
+ $('marca').value=c.marca;
+ $('marca').dispatchEvent(new Event('change'));
+ $('modelo').value=c.modelo;
+ $('anio').value=c.anio;
+ $('chasis').value=c.chasis;
+ $('km').value=c.km;
+ $('fventa').value=c.fventa;
+ $('frep').value=c.frep;
+ $('falla').value=c.falla;
+ $('diag').value=c.diag;
+ $('medida').value=c.medida;
+
+ $('pieces').innerHTML='';
+ P.length=0;
+ c.piezas.forEach(pData=>addPiece(pData));
+
+ $('btnSubmitForm').textContent='Reenviar reclamo corregido ('+c.id+')';
+ $('avisoFormulario').textContent='Modificando el reclamo '+c.id+' por observación del administrador.';
+ tab(1);
+}
+
+/* PANEL REVISIÓN ADMIN */
+function drawAdmin(){
+ if(usuarioActual.rol !== 'admin') return;
+ $('emptyAdmin').hidden=CLAIMS.length>0;
+ $('tblAdmin').hidden=!CLAIMS.length;
+ const tb=$('tblAdmin').querySelector('tbody');tb.innerHTML='';
+
+ CLAIMS.forEach(c=>{
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${c.id}</td><td>${c.taller}</td><td>${c.cliente}</td><td>${c.chasis}</td><td>${c.piezas.length}</td><td>${c.estado}</td>`;
+  const tdAc=document.createElement('td');
+  const btnRev=document.createElement('button');
+  btnRev.className='btn-revisar';
+  btnRev.textContent='🔍 Revisar';
+  btnRev.onclick=()=>abrirRevision(c.id);
+  tdAc.appendChild(btnRev);
+  tr.appendChild(tdAc);
+  tb.appendChild(tr);
+ });
+}
+
+function abrirRevision(id){
+ const c=CLAIMS.find(x=>x.id===id);
+ if(!c) return;
+ reclamoActualId=id;
+
+ $('modalReclamoId').textContent=c.id;
+ $('modalInfoDetalle').innerHTML=`
+   <div><strong>Taller:</strong> ${c.taller} (${c.ciudad})</div>
+   <div><strong>Cliente:</strong> ${c.cliente} (CI: ${c.doc})</div>
+   <div><strong>Teléfono:</strong> ${c.tel}</div>
+   <div><strong>Orden de Trabajo:</strong> ${c.ot}</div>
+   <div><strong>Vehículo:</strong> ${c.marca} ${c.modelo} (${c.anio})</div>
+   <div><strong>Chasis:</strong> ${c.chasis}</div>
+   <div><strong>Kilometraje:</strong> ${c.km} km</div>
+   <div><strong>Fechas:</strong> Venta: ${c.fventa} | Rep.: ${c.frep}</div>
+   <div style="grid-column: span 2;"><strong>Falla:</strong> ${c.falla}</div>
+   <div style="grid-column: span 2;"><strong>Diagnóstico:</strong> ${c.diag}</div>
+   <div style="grid-column: span 2;"><strong>Medida:</strong> ${c.medida}</div>
+ `;
+
+ const listaEv=$('modalEvidenciasLista');
+ listaEv.innerHTML='';
+ c.piezas.forEach((pieza,pIndex)=>{
+   const tituloP=document.createElement('div');
+   tituloP.style.fontWeight='bold';
+   tituloP.style.fontSize='0.85rem';
+   tituloP.textContent=`Pieza #${pIndex+1}: ${pieza.desc} (Código: ${pieza.codigo})`;
+   listaEv.appendChild(tituloP);
+
+   if(pieza.files){
+     Object.keys(pieza.files).forEach(k=>{
+       const file=pieza.files[k];
+       const evMeta=EV.find(e=>e.id===k);
+       const itemF=document.createElement('div');
+       itemF.style.display='flex';
+       itemF.style.justifyContent='space-between';
+       itemF.style.alignItems='center';
+       itemF.style.background='var(--card)';
+       itemF.style.padding='4px 8px';
+       itemF.style.borderRadius='4px';
+       itemF.style.fontSize='0.8rem';
+       itemF.innerHTML=`<span><b>${evMeta?evMeta.t:k}:</b> ${file.name}</span>`;
+       
+       const btnVer=document.createElement('button');
+       btnVer.className='btn-revisar';
+       btnVer.textContent='Ver';
+       btnVer.style.padding='2px 6px';
+       btnVer.style.fontSize='0.75rem';
+       btnVer.onclick=()=>mostrarArchivoModal(file);
+
+       itemF.appendChild(btnVer);
+       listaEv.appendChild(itemF);
+     });
+   }
+ });
+
+ $('comentarioAdmin').value=c.comentarioAdmin||'';
+ $('modalRevision').style.display='flex';
+}
+
+function cerrarRevision(){
+ $('modalRevision').style.display='none';
+ reclamoActualId=null;
+}
+
+function guardarComentario(accion){
+ const comentario=$('comentarioAdmin').value.trim();
+ const c=CLAIMS.find(x=>x.id===reclamoActualId);
+ if(!c) return;
+
+ c.comentarioAdmin=comentario;
+
+ if(accion==='Corregir'){
+   if(!comentario){
+     alert('Debes escribir una observación para solicitar la corrección.');
+     return;
+   }
+   c.estado='Devuelto para Corrección';
+   alert('Se ha solicitado la corrección al taller.');
+ } else if(accion==='Aprobado'){
+   c.estado='Aprobado';
+   alert('El reclamo fue aprobado.');
+ }
+
+ syncStorage();
+ cerrarRevision();
+ drawAdmin();
+}
+
+/* GESTIÓN DE USUARIOS (ADMIN) */
+function crearUsuario(e){
+  e.preventDefault();
+  const nombre = $('nuNombre').value.trim();
+  const user = $('nuUser').value.trim();
+  const pass = $('nuPass').value.trim();
+  const rol = $('nuRol').value;
+
+  if(USERS.some(u => u.user.toLowerCase() === user.toLowerCase())){
+    alert('El usuario "'+user+'" ya existe. Elige otro nombre de usuario.');
+    return;
+  }
+
+  USERS.push({ id: Date.now(), nombre, user, pass, rol });
+  syncStorage();
+  alert('Usuario "'+nombre+'" creado exitosamente.');
+  $('formUser').reset();
+  drawUsuarios();
+}
+
+function eliminarUsuario(id){
+  const target = USERS.find(u => u.id === id);
+  if(!target) return;
+
+  if(target.user === 'admin'){
+    alert('No puedes eliminar al usuario administrador principal.');
+    return;
+  }
+
+  if(confirm('¿Seguro que deseas eliminar al usuario "'+target.nombre+'"?')){
+    USERS = USERS.filter(u => u.id !== id);
+    syncStorage();
+    drawUsuarios();
+  }
+}
+
+function drawUsuarios(){
+  const tb = $('tbUsuarios');
+  tb.innerHTML = '';
+  USERS.forEach(u => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><strong>${u.nombre}</strong></td>
+      <td>${u.user}</td>
+      <td><span style="font-weight:bold; color:${u.rol==='admin'?'var(--bad)':'var(--acc)'}">${u.rol.toUpperCase()}</span></td>`;
+    
+    const tdAc = document.createElement('td');
+    if(u.user !== 'admin'){
+      const btnDel = document.createElement('button');
+      btnDel.className = 'btn-rechazar';
+      btnDel.style.padding = '4px 8px';
+      btnDel.style.fontSize = '0.75rem';
+      btnDel.textContent = 'Eliminar';
+      btnDel.onclick = () => eliminarUsuario(u.id);
+      tdAc.appendChild(btnDel);
+    } else {
+      tdAc.innerHTML = '<small style="color:var(--mute)">Sistema</small>';
+    }
+    tr.appendChild(tdAc);
+    tb.appendChild(tr);
+  });
+}
+
+addPiece();
+
+/* SELECTOR DE MODELOS */
+const modelosPorMarca={
+ Changan:["Alsvin", "CS15", "CS35 Plus", "CS35 Max", "CS55 Plus", "CS75 Plus", "UNI-T", "UNI-K", "Hunter F70", "Hunter REEV", "M60 Cargo", "M60 Pasajeros", "M201 Furgon", "MS201 Doble Cabina", "MD201 Cabina Simple"],
+ Deepal:["S05", "S07", "G318"],
+ AVATR: ["AVATR 07", "AVATR 11"]
+};
+const selectMarca=$('marca');
+const selectModelo=$('modelo');
+selectMarca.addEventListener('change', function() {
+ const marcaSeleccionada=this.value;
+ selectModelo.innerHTML='<option value="" disabled selected>Selecciona un modelo</option>';
+ if(modelosPorMarca[marcaSeleccionada]){
+  modelosPorMarca[marcaSeleccionada].forEach(function(modelo){
+   const option=document.createElement('option');
+   option.value=modelo;
+   option.textContent=modelo;
+   selectModelo.appendChild(option);
+  });
+ }
+});
+</script>
+</body>
+</html>
